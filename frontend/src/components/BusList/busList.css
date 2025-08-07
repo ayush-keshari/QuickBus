@@ -1,0 +1,103 @@
+
+.bus-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 30px auto;
+}
+
+.bus-card {
+  background-color: #f0f8ff; /* Light blue */
+  border: 2px solid #007bff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 85%;
+  max-width: 650px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.bus-card:hover {
+  background-color: #dceeff;
+}
+
+.bus-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.bus-header {
+  width: 24%;
+  font-weight: bold;
+  color: #003366;
+  margin-bottom: 8px;
+}
+
+.bus-data {
+  width: 24%;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #333;
+}
+
+.bus-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.book-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.book-btn:hover {
+  background-color: #0056b3;
+}
+
+.reset-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reset-btn.disabled {
+  display: none;
+}
+
+.no-bus {
+  text-align: center;
+  color: red;
+  font-weight: bold;
+  margin-top: 40px;
+}
+
+.activeArrow {
+  color: green;
+  font-size: 24px;
+  margin-top: 15px;
+  animation: bounce 0.5s infinite linear;
+}
+
+.nonActive {
+  display: none;
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
