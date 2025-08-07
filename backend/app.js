@@ -8,6 +8,21 @@ const cors = require('cors')
 
 
 var app = express();
+const express = require('express');
+const cors = require('cors');
+const app = express();
+
+// ✅ Allow frontend from localhost:3000 during development
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://your-frontend-url.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+app.use(express.json());
+
+// ... your routes
+
 
 
 // Login and Register 
