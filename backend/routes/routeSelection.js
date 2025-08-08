@@ -19,7 +19,7 @@ router.get('/all', async (req, res) => {
 });
 
 // ✅ 2. Search buses by startCity & destination (Frontend will call this as POST /api/routes)
-router.post('/routes', async (req, res) => {
+router.get('/routes', async (req, res) => {
     try {
         let { startCity, destination } = req.body;
 
