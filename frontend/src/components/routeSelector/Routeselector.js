@@ -1,83 +1,73 @@
-import React, { useState } from 'react';
-import { getRoutesFromApi } from '../API/api'; // ✅ Ensure correct path
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-function Routeselector() {
-    const [busData, setBusData] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [startCity, setStartCity] = useState('');
-    const [destination, setDestination] = useState('');
+export default function RouteSelector() {
+  const [startCity, setStartCity] = useState("Delhi");
+  const [destination, setDestination] = useState("Hyderabad");
+  const [routes, setRoutes] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    const fetchBuses = async () => {
-        if (!startCity || !destination) {
-            alert("Please select both FROM and TO cities.");
-            return;
-        }
+  useEffect(() => {
+    if (startCity && destination) {
+      fetchRoutes();
+    }
+  }, [startCity, destination]);
 
-        console.log("Selected Cities: ", startCity, destination); // ✅ Debug log
+  const fetchRoutes = async () => {
+    try {
+      setLoading(true);
+      console.log("Selected Cities: ", startCity, destination);
 
-        setLoading(true);
-        setError(null);
+      const res = await axios.get(
+        `https://quick-bus.vercel.app/api/routes?startCity=${startCity}&destination=${destination}`
+      );
 
-        try {
-            const result = await getRoutesFromApi(startCity, destination);
-            console.log("API Response: ", result?.data); // ✅ Debug log
+      console.log("API Response: ", res.data);
+      setRoutes(res.data);
+    } catch (error) {
+      console.error("Error fetching buses: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            if (result?.data?.bus && Array.isArray(result.data.bus)) {
-                setBusData(result.data.bus);
-            } else {
-                setBusData([]);
-            }
-        } catch (err) {
-            console.error('Error fetching buses:', err);
-            setError('Failed to load buses');
-        } finally {
-            setLoading(false);
-        }
-    };
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>Available Bus Routes</h2>
 
-    const renderBusList = () => {
-        if (!busData || busData.length === 0) {
-            return <p>No buses available</p>;
-        }
+      {loading && <p>Loading routes...</p>}
 
-        return busData.map((bus, index) => (
-            <div key={index} className="bus-card">
-                <h3>{bus.companyName}</h3>
-                <p>From: {bus.startCity}</p>
-                <p>To: {bus.destination}</p>
-                <p>Type: {bus.busType}</p>
-                <p>Seats Available: {bus.availableSeats}</p>
-                <p>Price: ₹{bus.pricePerSeat}</p>
-            </div>
-        ));
-    };
+      {!loading && routes.length === 0 && (
+        <p>No buses found for {startCity} → {destination}</p>
+      )}
 
-    return (
-        <div>
-            <form onSubmit={(e) => { e.preventDefault(); fetchBuses(); }}>
-                <select onChange={(e) => setStartCity(e.target.value)} value={startCity} required>
-                    <option value="">From</option>
-                    <option value="Delhi">Delhi</option>
-                    <option value="Chennai">Chennai</option>
-                    <option value="Bangalore">Bangalore</option>
-                </select>
-
-                <select onChange={(e) => setDestination(e.target.value)} value={destination} required>
-                    <option value="">To</option>
-                    <option value="Mumbai">Mumbai</option>
-                    <option value="Hyderabad">Hyderabad</option>
-                    <option value="Coimbatore">Coimbatore</option>
-                </select>
-
-                <button type="submit">Search Bus</button>
-            </form>
-
-            {loading && <p>Loading buses...</p>}
-            {error && <p>{error}</p>}
-            {!loading && renderBusList()}
-        </div>
-    );
+      {!loading && routes.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {routes.map((bus) => (
+            <li
+              key={bus._id}
+              style={{
+                border: "1px solid #ddd",
+                padding: "15px",
+                marginBottom: "10px",
+                borderRadius: "8px",
+                background: "#f9f9f9",
+              }}
+            >
+              <h3>{bus.companyName}</h3>
+              <p>🚌 {bus.busType}</p>
+              <p>Bus Number: {bus.busNumber}</p>
+              <p>
+                Route: {bus.startCity} → {bus.destination}
+              </p>
+              <p>
+                Seats Available: {bus.availableSeats}/{bus.totalSeats}
+              </p>
+              <p>💰 Price per seat: ₹{bus.pricePerSeat}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
-
-export default Routeselector;
