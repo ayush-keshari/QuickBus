@@ -1,36 +1,45 @@
 import React, { useState } from "react";
-import { getRoutesFromApi } from "./api";
+import axios from "axios";
 
 export default function RouteSelector() {
   const [startCity, setStartCity] = useState("");
   const [destination, setDestination] = useState("");
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
 
-  const fetchBuses = async () => {
+  const fetchRoutes = async () => {
     if (!startCity || !destination) {
       alert("Please select both Start City and Destination");
       return;
     }
 
-    setLoading(true);
     try {
+      setLoading(true);
+      setSearched(true);
       console.log("Selected Cities:", startCity, destination);
-      const response = await getRoutesFromApi(startCity, destination);
-      console.log("API Response:", response.data);
-      setRoutes(response.data || []);
-    } catch (err) {
-      console.error("Error fetching buses:", err);
+
+      // Use POST request to match backend route
+      const res = await axios.post(
+        "https://quick-bus.vercel.app/api/routes",
+        { startCity, destination }
+      );
+
+      console.log("API Response:", res.data);
+      setRoutes(res.data || []);
+    } catch (error) {
+      console.error("Error fetching buses:", error);
       setRoutes([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
     <div style={{ padding: "20px" }}>
       <h2>Select Your Route</h2>
 
-      {/* Start City */}
+      {/* Start City Selector */}
       <label style={{ marginRight: "10px" }}>Start City:</label>
       <select
         value={startCity}
@@ -44,7 +53,7 @@ export default function RouteSelector() {
         <option value="Bangalore">Bangalore</option>
       </select>
 
-      {/* Destination */}
+      {/* Destination Selector */}
       <label style={{ marginRight: "10px" }}>Destination:</label>
       <select
         value={destination}
@@ -60,7 +69,7 @@ export default function RouteSelector() {
       {/* Search Button */}
       <div style={{ marginTop: "15px" }}>
         <button
-          onClick={fetchBuses}
+          onClick={fetchRoutes}
           style={{
             padding: "8px 15px",
             backgroundColor: "#007bff",
@@ -73,36 +82,43 @@ export default function RouteSelector() {
         </button>
       </div>
 
-      {/* Loading */}
-      {loading && <p>Loading buses...</p>}
+      {/* Loading State */}
+      {loading && <p style={{ marginTop: "20px" }}>Loading routes...</p>}
 
-      {/* Results */}
-      <h3 style={{ marginTop: "20px" }}>Available Bus Routes</h3>
-      {routes.length > 0 ? (
-        routes.map((bus) => (
-          <div
-            key={bus._id}
-            style={{
-              border: "1px solid #ddd",
-              padding: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            <strong>{bus.companyName}</strong> ({bus.busType})<br />
-            Bus No: {bus.busNumber} <br />
-            Route: {bus.startCity} → {bus.destination} <br />
-            Seats Available: {bus.availableSeats}/{bus.totalSeats} <br />
-            Price: ₹{bus.pricePerSeat}
-          </div>
-        ))
-      ) : (
-        !loading &&
-        startCity &&
-        destination && (
-          <p>
-            No buses found for {startCity} → {destination}
-          </p>
-        )
+      {/* Routes Display */}
+      {!loading && routes.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0, marginTop: "20px" }}>
+          {routes.map((bus) => (
+            <li
+              key={bus._id}
+              style={{
+                border: "1px solid #ddd",
+                padding: "15px",
+                marginBottom: "10px",
+                borderRadius: "8px",
+                background: "#f9f9f9",
+              }}
+            >
+              <h3>{bus.companyName}</h3>
+              <p>🚌 {bus.busType}</p>
+              <p>Bus Number: {bus.busNumber}</p>
+              <p>
+                Route: {bus.startCity} → {bus.destination}
+              </p>
+              <p>
+                Seats Available: {bus.availableSeats}/{bus.totalSeats}
+              </p>
+              <p>💰 Price per seat: ₹{bus.pricePerSeat}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* No Results Message */}
+      {!loading && searched && routes.length === 0 && (
+        <p style={{ marginTop: "20px" }}>
+          No buses found for {startCity} → {destination}
+        </p>
       )}
     </div>
   );
