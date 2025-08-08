@@ -1,9 +1,5 @@
 
-app.use(cors({
-    origin: ['http://localhost:3000', 'https://quick-bus-qh71.vercel.app/'], 
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
-}));
+
 const express = require('express');
 const path = require('path'); 
 const cookieParser = require('cookie-parser');
@@ -13,6 +9,15 @@ const passport = require('passport');
 const cors = require('cors');
 
 const app = express();
+
+app.use(cors({
+  origin: [
+    'http://localhost:3000', // local dev
+    'https://quick-bus-qh71.vercel.app' // deployed frontend
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
 // ✅ CORS: Allow local & deployed frontend
 // app.use(cors({
