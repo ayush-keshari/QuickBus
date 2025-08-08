@@ -12,12 +12,15 @@ const app = express();
 
 app.use(cors({
   origin: [
-    'http://localhost:3000', // local dev
-    'https://quick-bus-qh71.vercel.app' // deployed frontend
+    'http://localhost:3000',
+    'https://quick-bus-qh71.vercel.app',
+    'https://quick-bus-qh71-git-main-ayush-kesharis-projects-cdd5aac1.vercel.app',
+    'https://quick-bus-qh71-krv24rmhw-ayush-kesharis-projects-cdd5aac1.vercel.app'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
+
 
 // ✅ CORS: Allow local & deployed frontend
 // app.use(cors({
