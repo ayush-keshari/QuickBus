@@ -8,11 +8,11 @@ const cors = require('cors');
 
 const app = express();
 
-// ✅ Proper CORS configuration (place BEFORE routes)
+// ✅ CORS: Allow local & deployed frontend
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://your-frontend-url.vercel.app'], // change to your actual Vercel frontend domain
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+    origin: ['http://localhost:3000', 'https://your-frontend-url.vercel.app'], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
 }));
 
 // ✅ Middleware
@@ -28,8 +28,8 @@ require('./auth/auth');
 // ✅ MongoDB Connection
 const DB_URL = require('./config/keys').MongoURI;
 mongoose.connect(DB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 })
 .then(() => console.log("Connected to MongoDB"))
 .catch(err => { throw err });
@@ -40,31 +40,34 @@ const registerRouter = require('./routes/register');
 const loggedInPage = require('./routes/loggedInUser');
 const bookingRoute = require('./routes/routeSelection');
 
-// ✅ Route Usage
+// ✅ Mount routes
 app.use('/', login);
 app.use('/register', registerRouter);
-app.use('/booking', bookingRoute);
+
+// 👇 Change from '/booking' to '/api' so /api/routes works
+app.use('/api', bookingRoute);
+
 app.use('/user', passport.authenticate('jwt', { session: false }), loggedInPage);
 
-// ✅ Sample route to verify backend is working
+// ✅ Test route
 const Bus = require('./models/Buses');
 app.get('/test-insert', async (req, res) => {
-    try {
-        const newBus = new Bus({
-            companyName: 'Volvo',
-            busType: 'AC Sleeper',
-            busNumber: 'DL-09-1234',
-            startCity: 'Delhi',
-            destination: 'Mumbai',
-            totalSeats: '40',
-            availableSeats: '40',
-            pricePerSeat: '1200'
-        });
-        await newBus.save();
-        res.json({ success: true, message: 'Bus inserted successfully!' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    try {
+        const newBus = new Bus({
+            companyName: 'Volvo',
+            busType: 'AC Sleeper',
+            busNumber: 'DL-09-1234',
+            startCity: 'Delhi',
+            destination: 'Mumbai',
+            totalSeats: '40',
+            availableSeats: '40',
+            pricePerSeat: '1200'
+        });
+        await newBus.save();
+        res.json({ success: true, message: 'Bus inserted successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // ✅ Export for Vercel serverless
