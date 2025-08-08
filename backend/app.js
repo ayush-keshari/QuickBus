@@ -1,5 +1,11 @@
+
+app.use(cors({
+    origin: ['http://localhost:3000', 'https://quick-bus-qh71.vercel.app/'], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
 const express = require('express');
-const path = require('path');
+const path = require('path'); 
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
@@ -9,11 +15,11 @@ const cors = require('cors');
 const app = express();
 
 // ✅ CORS: Allow local & deployed frontend
-app.use(cors({
-    origin: ['http://localhost:3000', 'https://your-frontend-url.vercel.app'], 
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
-}));
+// app.use(cors({
+//     origin: ['http://localhost:3000', 'https://your-frontend-url.vercel.app'], 
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     credentials: true
+// }));
 
 // ✅ Middleware
 app.use(logger('dev'));
