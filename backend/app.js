@@ -1,7 +1,5 @@
-
-
 const express = require('express');
-const path = require('path'); 
+const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
@@ -10,36 +8,27 @@ const cors = require('cors');
 
 const app = express();
 
+// ✅ CORS setup — allow both local dev and deployed frontend
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://quick-bus-qh71.vercel.app',
-    'https://quick-bus-qh71-git-main-ayush-kesharis-projects-cdd5aac1.vercel.app',
-    'https://quick-bus-qh71-krv24rmhw-ayush-kesharis-projects-cdd5aac1.vercel.app'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+    origin: [
+        'http://localhost:3000', // local
+        'https://quick-bus-qh71.vercel.app' // deployed frontend
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
 }));
 
-
-// ✅ CORS: Allow local & deployed frontend
-// app.use(cors({
-//     origin: ['http://localhost:3000', 'https://your-frontend-url.vercel.app'], 
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     credentials: true
-// }));
-
-// ✅ Middleware
+// Middleware
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ Passport Auth Setup
+// Passport
 require('./auth/auth');
 
-// ✅ MongoDB Connection
+// MongoDB
 const DB_URL = require('./config/keys').MongoURI;
 mongoose.connect(DB_URL, {
     useNewUrlParser: true,
@@ -48,22 +37,20 @@ mongoose.connect(DB_URL, {
 .then(() => console.log("Connected to MongoDB"))
 .catch(err => { throw err });
 
-// ✅ Routes
+// Routes
 const login = require('./routes/login');
 const registerRouter = require('./routes/register');
 const loggedInPage = require('./routes/loggedInUser');
 const bookingRoute = require('./routes/routeSelection');
 
-// ✅ Mount routes
+// Mount routes
 app.use('/', login);
 app.use('/register', registerRouter);
-
-// 👇 Change from '/booking' to '/api' so /api/routes works
-app.use('/api', bookingRoute);
+app.use('/api', bookingRoute); // ✅ All bus routes under /api
 
 app.use('/user', passport.authenticate('jwt', { session: false }), loggedInPage);
 
-// ✅ Test route
+// Test route
 const Bus = require('./models/Buses');
 app.get('/test-insert', async (req, res) => {
     try {
@@ -84,5 +71,4 @@ app.get('/test-insert', async (req, res) => {
     }
 });
 
-// ✅ Export for Vercel serverless
 module.exports = app;

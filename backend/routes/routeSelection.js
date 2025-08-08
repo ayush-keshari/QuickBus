@@ -2,28 +2,20 @@ const express = require('express');
 const router = express.Router();
 const Bus = require('../models/Buses');
 
-// Debug middleware to log incoming requests
+// Debug log for every request
 router.use((req, res, next) => {
     console.log("Incoming Request:", req.method, req.originalUrl);
     next();
 });
 
-// ✅ 1. Get all buses
-router.get('/all', async (req, res) => {
-    try {
-        const buses = await Bus.find();
-        res.json(buses);
-    } catch (err) {
-        res.status(500).json({ status: false, error: err.message });
-    }
-});
-
-// ✅ 2. Search buses by startCity & destination (Frontend will call this as POST /api/routes)
+/**
+ * GET /api/routes
+ * Fetch buses by query parameters
+ * Example: /api/routes?startCity=Delhi&destination=Mumbai
+ */
 router.get('/routes', async (req, res) => {
     try {
-        let { startCity, destination } = req.body;
-
-        // Trim spaces and make case-insensitive
+        let { startCity, destination } = req.query;
         startCity = startCity?.trim();
         destination = destination?.trim();
 
@@ -38,7 +30,44 @@ router.get('/routes', async (req, res) => {
     }
 });
 
-// ✅ 3. Add a new bus
+/**
+ * POST /api/routes
+ * Fetch buses by body payload
+ */
+router.post('/routes', async (req, res) => {
+    try {
+        let { startCity, destination } = req.body;
+        startCity = startCity?.trim();
+        destination = destination?.trim();
+
+        const buses = await Bus.find({
+            startCity: { $regex: new RegExp(`^${startCity}$`, 'i') },
+            destination: { $regex: new RegExp(`^${destination}$`, 'i') }
+        });
+
+        res.json(buses);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+});
+
+/**
+ * GET /api/all
+ * Get all buses
+ */
+router.get('/all', async (req, res) => {
+    try {
+        const buses = await Bus.find();
+        res.json(buses);
+    } catch (err) {
+        res.status(500).json({ status: false, error: err.message });
+    }
+});
+
+/**
+ * POST /api/add
+ * Add a new bus
+ */
 router.post('/add', async (req, res) => {
     try {
         const newBus = new Bus(req.body);
@@ -49,7 +78,10 @@ router.post('/add', async (req, res) => {
     }
 });
 
-// ✅ 4. Get bus by ID
+/**
+ * GET /api/:bId
+ * Get a bus by ID
+ */
 router.get('/:bId', async (req, res) => {
     try {
         const bus = await Bus.findById(req.params.bId);
